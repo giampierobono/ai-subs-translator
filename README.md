@@ -85,7 +85,7 @@ No API keys needed in environment variables! Each user provides their own keys t
 
 Deploy to Render with one click (FREE forever):
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/giampierobono/ai-subs-translator)
 
 For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 

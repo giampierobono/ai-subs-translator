@@ -13,12 +13,13 @@ services:
         value: 8787
       - key: DEFAULT_LANG
         value: en
-      - key: OPENAI_API_KEY
-        sync: false # Set manually in Render dashboard
-      - key: OPENSUBTITLES_API_KEY  
-        sync: false # Set manually in Render dashboard
       - key: CORS_ORIGIN
         value: ""
+      # API keys are optional - users provide their own keys
+      # - key: OPENAI_API_KEY
+      #   sync: false # Optional: Set only for development/testing
+      # - key: OPENSUBTITLES_API_KEY  
+      #   sync: false # Optional: Set only for fallback access
     healthCheckPath: /health
     
   # Addon Service  

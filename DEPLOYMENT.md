@@ -1,25 +1,29 @@
-# 🆓 Render Deployment Guide
+# 🚀 Render Deployment Guide
 
-## Quick Setup
+## 🎯 Quick Deploy (Recommended)
+
+### One-Click Deploy Button
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/giampierobono/ai-subs-translator)
+
+**Steps:**
+1. Click the button above
+2. Sign in to Render (free account)
+3. Connect your GitHub repository
+4. Render reads `render.yaml` and creates both services automatically
+5. ✅ Done! No API keys needed in environment variables
+
+---
+
+## 🔧 Manual Setup (Alternative)
 
 ### 1. Create Render Account
 1. Go to [render.com](https://render.com)
 2. Sign up with GitHub (FREE forever!)
 3. Connect your repository
 
-### 2. Deploy from GitHub
+### 2. Create Services
 
-#### Option A: One-Click Deploy
-1. Push this code to GitHub
-2. Go to Render Dashboard
-3. Click "New" → "Blueprint"
-4. Connect your repo
-5. Render will read `render.yaml` and create both services automatically!
-
-#### Option B: Manual Setup
-Create 2 web services:
-
-##### Server Service:
+#### Server Service:
 - **Name**: `ai-subs-server`
 - **Environment**: `Docker`
 - **Dockerfile Path**: `./server.Dockerfile`
@@ -27,7 +31,7 @@ Create 2 web services:
 - **Port**: `8787`
 - **Health Check**: `/health`
 
-##### Addon Service:
+#### Addon Service:
 - **Name**: `ai-subs-addon`
 - **Environment**: `Docker` 
 - **Dockerfile Path**: `./addon.Dockerfile`
@@ -37,88 +41,142 @@ Create 2 web services:
 
 ### 3. Environment Variables
 
-Set these in Render dashboard for **both services**:
-
+**Required (minimal setup):**
 ```env
-# Required
 NODE_ENV=production
-OPENAI_API_KEY=your_openai_key
-OPENSUBTITLES_API_KEY=your_opensubtitles_key
-
-# Optional
-PORT=8787
 DEFAULT_LANG=en
-CORS_ORIGIN=https://your-frontend-domain.com
-OPENAI_MODEL=gpt-3.5-turbo
-OPENAI_MAX_TOKENS=2000
-OPENAI_TEMPERATURE=0.3
+CORS_ORIGIN=""
 ```
 
-### 4. GitHub Secrets
+**Optional (for fallback access):**
+```env
+# Only set these if you want fallback access when users don't provide keys
+OPENAI_API_KEY=your_openai_key_optional
+OPENSUBTITLES_API_KEY=your_opensubtitles_key_optional
+```
 
-Add these secrets to your GitHub repository:
+---
 
+## 🎬 How It Works
+
+### User-Provided API Keys System
+1. **Users visit**: `https://your-addon-url/configure.html`
+2. **Users enter their own API keys**:
+   - OpenAI API Key (required for translation)
+   - OpenSubtitles API Key (optional, for higher limits)
+3. **System generates personalized addon URL**
+4. **Users install their personal addon in Stremio**
+
+### 🔒 Privacy & Security
+- ✅ **No API keys stored on server**
+- ✅ **Each user pays for their own usage**
+- ✅ **Keys embedded in addon URL (client-side only)**
+- ✅ **Perfect for public deployment**
+
+---
+
+## ⚙️ GitHub Actions Auto-Deploy (Optional)
+
+### 1. Enable Auto-Deploy
+Add this repository variable in GitHub:
+```
+DEPLOY_ENABLED=true
+```
+
+### 2. Add GitHub Secrets
 ```env
 # Render API Key (get from render.com/dashboard/account)
 RENDER_API_KEY=your_render_api_key
 
-# Service IDs (get from service URLs)
+# Service IDs (get from service settings)
 RENDER_SERVER_SERVICE_ID_PROD=srv-xxxxxxxxxxxxx
 RENDER_ADDON_SERVICE_ID_PROD=srv-xxxxxxxxxxxxx
-RENDER_SERVER_SERVICE_ID_STAGING=srv-xxxxxxxxxxxxx
-RENDER_ADDON_SERVICE_ID_STAGING=srv-xxxxxxxxxxxxx
 
-# Production URL (for health checks)
-RENDER_PRODUCTION_URL=https://ai-subs-server.onrender.com
+# URLs for health checks (optional)
+RENDER_SERVER_URL=https://ai-subs-server.onrender.com
+RENDER_ADDON_URL=https://ai-subs-addon.onrender.com
 ```
 
-### 5. Get Service IDs
-
-Service IDs are found in the service URL:
+### 3. Find Service IDs
+Service IDs are in the service settings URL:
 `https://dashboard.render.com/web/srv-xxxxxxxxxxxxx`
-
 Copy the `srv-xxxxxxxxxxxxx` part.
 
-## Automatic Deployments
+---
 
-After setup, deployments are automatic:
+## 🌐 Usage After Deploy
 
-- **Staging**: Push to `develop` branch
-- **Production**: Push to `main` branch
+### 1. Get Your URLs
+After deployment, you'll have:
+- **Server**: `https://ai-subs-server.onrender.com`
+- **Addon**: `https://ai-subs-addon.onrender.com`
 
-## Monitoring
+### 2. Configure Stremio Addon
+1. Visit: `https://ai-subs-addon.onrender.com/configure.html`
+2. Enter your API keys:
+   - **OpenAI**: Get from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+   - **OpenSubtitles**: Get from [opensubtitles.com/consumers](https://opensubtitles.com/consumers) (optional)
+3. Copy the generated addon URL
+4. Install in Stremio
 
-- **Railway Dashboard**: Monitor logs, metrics, deployments
-- **Health Checks**: `/health` endpoint for server status
-- **GitHub Actions**: Build and deployment status
+### 3. Enjoy!
+- 🎬 Watch movies/series in Stremio
+- 🔄 Get AI-translated subtitles on demand
+- 💰 Pay only for your own usage (typically $0.01-0.03 per movie)
 
-## Troubleshooting
+---
 
-### Deployment Fails
-1. Check Railway logs in dashboard
-2. Verify environment variables are set
-3. Ensure Dockerfile builds locally
+## 🔧 Monitoring & Troubleshooting
 
-### Service Won't Start
-1. Check health check endpoint
-2. Verify port configuration (8787 for server, 7000 for addon)
-3. Check logs for startup errors
+### Health Checks
+- **Server**: `https://your-server-url/health`
+- **Addon**: `https://your-addon-url/manifest.json`
 
-### Database Needed?
-```bash
-# Add PostgreSQL to Railway project
-railway add postgresql
+### Common Issues
 
-# Add Redis
-railway add redis
+#### Service Won't Start
+1. Check Render logs in dashboard
+2. Verify Docker build completed successfully
+3. Check port configuration matches Dockerfile
 
-# Environment variables will be auto-injected
-```
+#### API Keys Not Working
+1. Users should get fresh keys from providers
+2. Check that keys have sufficient credits
+3. Verify addon URL contains the keys
 
-## Costs
+#### No Subtitles Found
+1. Try different language codes (en, es, fr, etc.)
+2. Check if movie/series exists on OpenSubtitles
+3. Verify the video ID format
 
-- **Free Tier**: $0/month (with usage limits)
-- **Pro Plan**: $5/month per user (unlimited usage)
-- **Pay-as-you-go**: $0.000463/hour per GB RAM
+---
 
-Perfect for small to medium projects! 🚀
+## 💰 Costs
+
+### Render (Hosting)
+- **Free Tier**: $0/month
+  - 750 hours/month compute
+  - 512MB RAM
+  - 100GB bandwidth
+  - Perfect for personal use!
+
+### User Costs (API Usage)
+- **OpenAI**: ~$0.01-0.03 per movie translation
+- **OpenSubtitles**: Free with registration (higher limits)
+
+**Total cost for users**: Pennies per movie! 🎯
+
+---
+
+## 🚀 Production Ready Features
+
+✅ **Docker containerization**  
+✅ **Health checks & monitoring**  
+✅ **CORS configuration**  
+✅ **Error handling & logging**  
+✅ **TypeScript type safety**  
+✅ **Security best practices**  
+✅ **User API key isolation**  
+✅ **CI/CD pipeline**  
+
+Perfect for production use! 🌟
