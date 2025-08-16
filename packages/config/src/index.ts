@@ -4,44 +4,14 @@ import path from 'path';
 // Load environment variables from root .env file
 loadDotenv({ path: path.join(__dirname, '../../../.env') });
 
-/**
- * Server configuration
- */
-export interface ServerConfig {
-  port: number;
-  defaultLang: string;
-  corsOrigin: string[];
-  environment: 'development' | 'production' | 'test';
-}
-
-/**
- * OpenAI configuration
- */
-export interface OpenAIConfig {
-  apiKey?: string;
-  model: string;
-  maxTokens: number;
-  temperature: number;
-  organization?: string;
-}
-
-/**
- * OpenSubtitles configuration
- */
-export interface OpenSubtitlesConfig {
-  apiKey?: string;
-  userAgent: string;
-  baseUrl: string;
-}
-
-/**
- * Complete application configuration
- */
-export interface AppConfig {
-  server: ServerConfig;
-  openai: OpenAIConfig;
-  opensubtitles: OpenSubtitlesConfig;
-}
+// Import types for internal use
+import type { 
+  ServerConfig, 
+  OpenAIConfig, 
+  OpenSubtitlesConfig, 
+  AppConfig, 
+  ConfigStatus 
+} from '@ai-subs-translator/types';
 
 /**
  * Parse environment variable as number with default
@@ -92,14 +62,14 @@ function createConfig(): AppConfig {
       environment: parseEnvironment(process.env.NODE_ENV)
     },
     openai: {
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY || null,
       model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
       maxTokens: parseNumber(process.env.OPENAI_MAX_TOKENS, 2000),
       temperature: parseFloatValue(process.env.OPENAI_TEMPERATURE, 0.3),
-      organization: process.env.OPENAI_ORGANIZATION
+      organization: process.env.OPENAI_ORGANIZATION || null
     },
     opensubtitles: {
-      apiKey: process.env.OPENSUBTITLES_API_KEY,
+      apiKey: process.env.OPENSUBTITLES_API_KEY || null,
       userAgent: process.env.OPENSUBTITLES_USER_AGENT || 'ai-subs-translator v1.0',
       baseUrl: process.env.OPENSUBTITLES_BASE_URL || 'https://api.opensubtitles.com/api/v1'
     }

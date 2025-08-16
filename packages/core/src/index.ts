@@ -1,12 +1,8 @@
-/**
- * Subtitle cue interface
- */
-export interface SubtitleCue {
-  index: number;
-  start: string;
-  end: string;
-  text: string;
-}
+// Import types for internal use
+import type { SubtitleCue } from '@ai-subs-translator/types';
+
+// Re-export for external consumers
+export type { SubtitleCue } from '@ai-subs-translator/types';
 
 /**
  * Parse an SRT string into an array of cue objects.

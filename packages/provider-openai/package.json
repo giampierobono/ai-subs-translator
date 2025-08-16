@@ -8,7 +8,8 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "openai": "^4.25.0"
+    "openai": "^4.25.0",
+    "@ai-subs-translator/types": "*"
   },
   "devDependencies": {
     "typescript": "^5.3.3",

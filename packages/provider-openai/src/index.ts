@@ -1,15 +1,5 @@
 import OpenAI from 'openai';
-
-/**
- * Configuration for OpenAI provider
- */
-interface OpenAIConfig {
-  apiKey?: string;
-  model: string;
-  maxTokens: number;
-  temperature: number;
-  organization?: string;
-}
+import type { OpenAIProviderConfig } from '@ai-subs-translator/types';
 
 /**
  * Language mapping for better OpenAI translation prompts
@@ -39,8 +29,8 @@ const LANGUAGE_NAMES: Record<string, string> = {
 /**
  * Configuration for OpenAI provider
  */
-const config: OpenAIConfig = {
-  apiKey: process.env.OPENAI_API_KEY,
+const config: OpenAIProviderConfig = {
+  apiKey: process.env.OPENAI_API_KEY || null,
   model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
   maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000'),
   temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),

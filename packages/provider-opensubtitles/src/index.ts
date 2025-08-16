@@ -1,18 +1,10 @@
 import fetch from 'node-fetch';
+import type { OpenSubtitlesProviderConfig } from '@ai-subs-translator/types';
 
 /**
- * OpenSubtitles API configuration
+ * OpenSubtitles subtitle file response (keeping current structure)
  */
-interface OpenSubtitlesConfig {
-  apiKey?: string;
-  userAgent: string;
-  baseUrl: string;
-}
-
-/**
- * OpenSubtitles subtitle file response
- */
-interface SubtitleFile {
+type SubtitleFile = {
   file_id: number;
   cd_number: number;
   file_name: string;
@@ -62,19 +54,19 @@ interface SubtitleFile {
 /**
  * OpenSubtitles API response for subtitles search
  */
-interface OpenSubtitlesResponse {
+type OpenSubtitlesResponse = {
   total_pages: number;
   total_count: number;
   per_page: number;
   page: number;
   data: SubtitleFile[];
-}
+};
 
 /**
  * Configuration for OpenSubtitles provider
  */
-const config: OpenSubtitlesConfig = {
-  apiKey: process.env.OPENSUBTITLES_API_KEY,
+const config: OpenSubtitlesProviderConfig = {
+  apiKey: process.env.OPENSUBTITLES_API_KEY || null,
   userAgent: process.env.OPENSUBTITLES_USER_AGENT || 'ai-subs-translator v1.0',
   baseUrl: 'https://api.opensubtitles.com/api/v1'
 };
