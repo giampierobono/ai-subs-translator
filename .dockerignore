@@ -1,0 +1,55 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build outputs (will be rebuilt in container)
+dist
+.turbo
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage
+.nyc_output
+
+# Dependency directories that will be reinstalled
+node_modules/
+**/node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache

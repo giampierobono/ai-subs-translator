@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   server:
     build:
@@ -8,11 +6,16 @@ services:
     ports:
       - "8787:8787"
     environment:
+      - NODE_ENV=production
       - PORT=8787
       - DEFAULT_LANG=en
-    # Optionally mount a volume to persist cache or logs
-    volumes:
-      - .:/app:ro
+      # Add your API keys here or use .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENSUBTITLES_API_KEY=${OPENSUBTITLES_API_KEY}
+      - CORS_ORIGIN=${CORS_ORIGIN:-""}
+    env_file:
+      - .env.example
+    restart: unless-stopped
 
   addon:
     build:
@@ -21,9 +24,9 @@ services:
     ports:
       - "7000:7000"
     environment:
+      - NODE_ENV=production
       - BACKEND_URL=http://server:8787/subs
       - DEFAULT_LANG=en
     depends_on:
       - server
-    volumes:
-      - .:/app:ro
+    restart: unless-stopped

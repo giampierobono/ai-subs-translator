@@ -1,15 +1,51 @@
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy only the monorepo into the container
-COPY ai-subs-translator ./ai-subs-translator
+# Copy package files for caching
+COPY package*.json ./
+COPY turbo.json ./
+COPY tsconfig.json ./
 
-# Install dependencies for the monorepo and its workspaces
-WORKDIR /app/ai-subs-translator
-RUN npm install --omit=dev
+# Copy workspace structure  
+COPY apps/addon/package*.json ./apps/addon/
+COPY packages/core/package*.json ./packages/core/
+COPY packages/config/package*.json ./packages/config/
+COPY packages/types/package*.json ./packages/types/
+COPY packages/provider-openai/package*.json ./packages/provider-openai/
+COPY packages/provider-opensubtitles/package*.json ./packages/provider-opensubtitles/
+
+# Install all dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build only addon and its dependencies
+RUN npx turbo build --filter=@ai-subs-translator/addon
+
+# Production stage
+FROM node:18-alpine AS production
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY apps/addon/package*.json ./apps/addon/
+COPY packages/core/package*.json ./packages/core/
+COPY packages/config/package*.json ./packages/config/
+COPY packages/types/package*.json ./packages/types/
+
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Copy built application from builder stage
+COPY --from=builder /app/apps/addon/dist ./apps/addon/dist
+COPY --from=builder /app/packages ./packages
+
+# Expose port
+EXPOSE 7000
 
 # Start the addon
-WORKDIR /app/ai-subs-translator/apps/addon
-
-CMD ["node", "src/index.js"]
+CMD ["node", "apps/addon/dist/index.js"]
