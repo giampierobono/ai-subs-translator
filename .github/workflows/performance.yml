@@ -29,9 +29,14 @@ jobs:
       - name: Build project
         run: npm run build
         
+      - name: Prepare environment
+        run: |
+          # Create .env for testing (no real API keys needed for basic health check)
+          cp .env.example .env
+          
       - name: Start services
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 30 # Wait for services to start
           
       - name: Run performance tests
@@ -40,16 +45,30 @@ jobs:
           wget https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64
           chmod +x hey_linux_amd64
           
-          # Basic health check
+          # Basic health checks
+          echo "Testing server health endpoint..."
           curl -f http://localhost:8787/health || exit 1
           
-          # Load test - 100 requests, 10 concurrent
-          ./hey_linux_amd64 -n 100 -c 10 http://localhost:8787/ > performance-results.txt
+          echo "Testing addon manifest endpoint..."
+          curl -f http://localhost:7000/manifest.json || exit 1
           
-          # Check response times
-          echo "## Performance Results" >> $GITHUB_STEP_SUMMARY
+          # Load test server health endpoint - 50 requests, 5 concurrent
+          echo "Running server performance test..."
+          ./hey_linux_amd64 -n 50 -c 5 http://localhost:8787/health > server-performance.txt
+          
+          # Load test addon manifest endpoint - 50 requests, 5 concurrent  
+          echo "Running addon performance test..."
+          ./hey_linux_amd64 -n 50 -c 5 http://localhost:7000/manifest.json > addon-performance.txt
+          
+          # Show results
+          echo "## Server Performance Results" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat performance-results.txt >> $GITHUB_STEP_SUMMARY
+          cat server-performance.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Addon Performance Results" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat addon-performance.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           
       - name: Memory usage check
@@ -59,4 +78,4 @@ jobs:
           
       - name: Cleanup
         if: always()
-        run: docker-compose down
+        run: docker compose down
