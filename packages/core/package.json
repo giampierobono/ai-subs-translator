@@ -5,7 +5,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "echo 'No lint configured for core'",
+    "test": "echo 'No tests for core package'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-subs-translator/types": "*"

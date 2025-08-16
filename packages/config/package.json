@@ -5,7 +5,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "echo 'No lint configured for config'",
+    "test": "echo 'No tests for config package'", 
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "dotenv": "^17.2.1",

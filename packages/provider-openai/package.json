@@ -5,7 +5,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "echo 'No lint configured for provider-openai'",
+    "test": "echo 'No tests for provider-openai package'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "openai": "^4.25.0",

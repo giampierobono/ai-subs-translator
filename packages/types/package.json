@@ -7,7 +7,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "lint": "echo 'No lint configured for types'"
+    "lint": "echo 'No lint configured for types'",
+    "test": "echo 'No tests for types package'",
+    "type-check": "tsc --noEmit"
   },
   "keywords": ["typescript", "types", "subtitle", "translation"],
   "author": "AI Subtitle Translator",

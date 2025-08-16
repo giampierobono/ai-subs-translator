@@ -5,7 +5,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "echo 'No lint configured for provider-opensubtitles'",
+    "test": "echo 'No tests for provider-opensubtitles package'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-subs-translator/types": "*"

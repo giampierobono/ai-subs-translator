@@ -6,7 +6,9 @@
     "dev": "ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "lint": "echo 'No lint configured for addon'"
+    "lint": "echo 'No lint configured for addon'",
+    "test": "echo 'No tests for addon package'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "dotenv": "^17.2.1",
