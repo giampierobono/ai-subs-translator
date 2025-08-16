@@ -6,11 +6,13 @@ A powerful subtitle translation service built with TypeScript, featuring real-ti
 
 - 🔄 **Real-time subtitle translation** using OpenAI GPT
 - 📥 **Automatic subtitle fetching** from OpenSubtitles 
+- 🔑 **User-provided API keys** - No shared costs, each user uses their own keys
 - 🏗️ **Monorepo architecture** with TypeScript
 - 🐳 **Docker containerization** ready for production
 - 🚀 **CI/CD pipeline** with GitHub Actions
 - 📊 **Health monitoring** and error handling
 - 🎯 **Stremio addon** for seamless integration
+- 🛡️ **Privacy-first** - API keys stay with the user
 
 ## 🚀 Quick Start
 
@@ -38,14 +40,37 @@ docker build -f addon.Dockerfile -t ai-subs-addon .
 ```
 
 ### Environment Setup
+
+**For Development:**
 ```bash
-# Copy environment template
+# Copy environment template  
 cp .env.example .env
 
-# Add your API keys
+# Add your API keys for development
 OPENAI_API_KEY=your_openai_key
 OPENSUBTITLES_API_KEY=your_opensubtitles_key
 ```
+
+**For Production (Recommended):**
+No API keys needed in environment variables! Each user provides their own keys through the addon interface.
+
+## 🎬 Using the Stremio Addon
+
+1. **Deploy the addon** using the instructions below
+2. **Visit the configuration page** at `https://your-addon-url/configure.html`
+3. **Enter your API keys:**
+   - **OpenAI API Key** (Required) - Get from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+     - 💰 Pay-per-use (typically $0.01-0.03 per movie)
+   - **OpenSubtitles API Key** (Optional but recommended) - Get from [opensubtitles.com/consumers](https://www.opensubtitles.com/en/consumers)
+     - 🆓 Free registration, higher download limits
+4. **Copy the generated addon URL** and install it in Stremio
+5. **Enjoy AI-translated subtitles!** 🎉
+
+### 🔒 Privacy & Security
+- Your API keys are embedded in the addon URL (client-side only)
+- Keys are never stored on our servers
+- Each user pays for their own API usage
+- Only share your addon URL with trusted devices
 
 ## 📦 Architecture
 
