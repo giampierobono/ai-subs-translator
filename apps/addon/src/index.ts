@@ -157,9 +157,13 @@ try {
     </div>
     
     <div class="form-group">
-      <label for="opensubtitlesKey">OpenSubtitles API Key (Optional):</label>
+      <label for="opensubtitlesKey">OpenSubtitles API Key (Optional - Recommended):</label>
       <input type="password" id="opensubtitlesKey" placeholder="Your OpenSubtitles key">
-      <small>Get your key from: <a href="https://www.opensubtitles.com/en/consumers" target="_blank">opensubtitles.com/consumers</a></small>
+      <small>
+        <strong>📈 Benefits:</strong> Higher download limits, faster access, priority support<br>
+        <strong>🆓 Cost:</strong> Free registration at <a href="https://www.opensubtitles.com/en/consumers" target="_blank">opensubtitles.com/consumers</a><br>
+        <strong>⚠️ Without key:</strong> Limited to 200 downloads/day (shared limit)
+      </small>
     </div>
     
     <button type="submit">Generate Addon URL</button>

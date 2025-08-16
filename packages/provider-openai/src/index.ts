@@ -59,15 +59,26 @@ export class OpenAIError extends Error {
 /**
  * Initialize OpenAI client
  */
-function getOpenAIClient(): OpenAI {
-  if (!openaiClient) {
-    if (!config.apiKey) {
-      throw new OpenAIError('OpenAI API key is required. Set OPENAI_API_KEY environment variable.');
-    }
+function getOpenAIClient(apiKey?: string): OpenAI {
+  const keyToUse = apiKey || config.apiKey;
+  
+  if (!keyToUse) {
+    throw new OpenAIError('OpenAI API key is required. Provide apiKey parameter or set OPENAI_API_KEY environment variable.');
+  }
 
+  // If we have a user-provided key, create a new client (don't cache)
+  if (apiKey && apiKey !== config.apiKey) {
+    return new OpenAI({
+      apiKey: keyToUse,
+      organization: config.organization || undefined
+    });
+  }
+
+  // Use cached client for server's default key
+  if (!openaiClient) {
     openaiClient = new OpenAI({
-      apiKey: config.apiKey,
-      organization: config.organization
+      apiKey: keyToUse,
+      organization: config.organization || undefined
     });
   }
   
@@ -135,8 +146,8 @@ function chunkTexts(texts: string[], maxChunkSize: number = 50): string[][] {
 /**
  * Translate a batch of subtitle texts using OpenAI
  */
-async function translateTextBatch(texts: string[], targetLang: string): Promise<string[]> {
-  const client = getOpenAIClient();
+async function translateTextBatch(texts: string[], targetLang: string, apiKey?: string): Promise<string[]> {
+  const client = getOpenAIClient(apiKey);
   const targetLanguage = LANGUAGE_NAMES[targetLang.toLowerCase()] || targetLang;
   
   // Create prompt for batch translation
@@ -226,7 +237,7 @@ ${textsFormatted}`;
  * 
  * @throws {OpenAIError} When API request fails or configuration is invalid
  */
-export async function translateSrt(srt: string, targetLang: string): Promise<string> {
+export async function translateSrt(srt: string, targetLang: string, apiKey?: string): Promise<string> {
   if (!srt?.trim()) {
     throw new OpenAIError('SRT content is required');
   }
@@ -249,7 +260,7 @@ export async function translateSrt(srt: string, targetLang: string): Promise<str
 
     // Translate each chunk
     for (const chunk of textChunks) {
-      const translatedChunk = await translateTextBatch(chunk, targetLang);
+      const translatedChunk = await translateTextBatch(chunk, targetLang, apiKey);
       translatedChunks.push(...translatedChunk);
     }
 

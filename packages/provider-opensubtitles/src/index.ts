@@ -108,7 +108,7 @@ function extractImdbId(videoId: string): string {
 /**
  * Make authenticated request to OpenSubtitles API
  */
-async function makeApiRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+async function makeApiRequest(endpoint: string, options: RequestInit = {}, apiKey?: string | null): Promise<any> {
   const url = `${config.baseUrl}${endpoint}`;
   
   const headers: Record<string, string> = {
@@ -117,9 +117,10 @@ async function makeApiRequest(endpoint: string, options: RequestInit = {}): Prom
     ...((options.headers as Record<string, string>) || {})
   };
 
-  // Add API key if available
-  if (config.apiKey) {
-    headers['Api-Key'] = config.apiKey;
+  // Add API key if provided (user key takes precedence)
+  const keyToUse = apiKey || config.apiKey;
+  if (keyToUse) {
+    headers['Api-Key'] = keyToUse;
   }
 
   try {
@@ -185,7 +186,7 @@ async function downloadSubtitleFile(downloadUrl: string): Promise<string> {
  * 
  * @throws {OpenSubtitlesError} When API request fails or no subtitles found
  */
-export async function fetchSubtitles(videoId: string, lang: string): Promise<string> {
+export async function fetchSubtitles(videoId: string, lang: string, apiKey?: string | null): Promise<string> {
   if (!videoId?.trim()) {
     throw new OpenSubtitlesError('Video ID is required');
   }
@@ -206,7 +207,9 @@ export async function fetchSubtitles(videoId: string, lang: string): Promise<str
     });
 
     const searchResponse: OpenSubtitlesResponse = await makeApiRequest(
-      `/subtitles?${searchParams.toString()}`
+      `/subtitles?${searchParams.toString()}`,
+      {},
+      apiKey
     );
 
     if (!searchResponse.data || searchResponse.data.length === 0) {

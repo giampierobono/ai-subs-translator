@@ -177,6 +177,10 @@ app.get('/subs', async (req, res) => {
     const lang = (req.query.lang as string) || config.server.defaultLang;
     const targetLang = req.query.target as string; // New: explicit target language
     
+    // Extract user-provided API keys
+    const userOpenAIKey = req.query.openai_key as string;
+    const userOpenSubtitlesKey = req.query.opensubtitles_key as string;
+    
     validateVideoId(video);
     validateLanguage(lang);
     
@@ -185,16 +189,14 @@ app.get('/subs', async (req, res) => {
       validateLanguage(targetLang);
     }
 
-    // Check service availability
-    if (!config.opensubtitles.apiKey) {
-      throw new ServiceUnavailableError('OpenSubtitles API key not configured', 'OpenSubtitles');
+    // Check OpenAI availability (user key required for translation)
+    const needsTranslation = targetLang && targetLang !== lang;
+    if (needsTranslation && !userOpenAIKey) {
+      throw new ServiceUnavailableError('OpenAI API key required for translation', 'OpenAI');
     }
 
-    // Only check OpenAI if translation is needed
-    const needsTranslation = targetLang && targetLang !== lang;
-    if (needsTranslation && !config.openai.apiKey) {
-      throw new ServiceUnavailableError('OpenAI API key not configured', 'OpenAI');
-    }
+    // For OpenSubtitles: use user key if provided, otherwise fallback to server key or no key
+    const openSubtitlesKey = userOpenSubtitlesKey || config.opensubtitles.apiKey || null;
 
     logger.info('Processing subtitle request', { 
       video, 
@@ -204,7 +206,7 @@ app.get('/subs', async (req, res) => {
     });
 
     // Step 1: Fetch the original subtitles in SRT format
-    const originalSrt = await fetchSubtitles(video, lang);
+    const originalSrt = await fetchSubtitles(video, lang, openSubtitlesKey);
     logger.info('Subtitles fetched successfully', { 
       video, 
       lang, 
@@ -222,7 +224,7 @@ app.get('/subs', async (req, res) => {
     if (needsTranslation) {
       logger.info('Starting translation', { from: lang, to: targetLang });
       const srtText = cuesToSrt(cues);
-      finalSrt = await translateSrt(srtText, targetLang);
+      finalSrt = await translateSrt(srtText, targetLang, userOpenAIKey);
       logger.info('Translation completed', { 
         from: lang, 
         to: targetLang,
