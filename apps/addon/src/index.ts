@@ -1,4 +1,5 @@
 import { addonBuilder, type SubtitlesRequest } from 'stremio-addon-sdk';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 
@@ -25,7 +26,7 @@ const manifest = {
 const builder = new addonBuilder(manifest);
 
 // Define the subtitles handler
-builder.defineSubtitlesHandler(({ id, type, extra }: SubtitlesRequest) => {
+const subtitlesHandler = ({ id, type, extra }: SubtitlesRequest) => {
   // Determine the requested language; fallback to default
   const lang = (extra && extra.lang) || DEFAULT_LANG;
   // Compose query string for the backend
@@ -40,7 +41,65 @@ builder.defineSubtitlesHandler(({ id, type, extra }: SubtitlesRequest) => {
       }
     ]
   });
-});
+};
 
-// Export the interface for Stremio
-export = builder.getInterface();
+builder.defineSubtitlesHandler(subtitlesHandler);
+
+// Start the addon server using Stremio SDK's built-in method
+const PORT = process.env.PORT || 7000;
+
+try {
+  // Use the SDK's built-in server
+  const addonInterface = builder.getInterface();
+  
+  // If the SDK provides a publishToWeb method, use it
+  if (typeof addonInterface.publishToWeb === 'function') {
+    addonInterface.publishToWeb(PORT);
+    console.log(`🎬 AI Subtitle Translator addon started on port ${PORT}`);
+    console.log(`📋 Manifest: http://localhost:${PORT}/manifest.json`);
+    console.log(`🔗 Backend URL: ${BACKEND_URL}`);
+  } else {
+    // Fallback: manual express setup
+    const app = express();
+    
+    // CORS middleware
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      next();
+    });
+    
+    // Serve manifest
+    app.get('/manifest.json', (req: Request, res: Response) => {
+      res.json(manifest);
+    });
+    
+    // Serve subtitles
+    app.get('/subtitles/:type/:id.json', async (req: Request, res: Response) => {
+      try {
+        const { type, id } = req.params;
+        const extra = req.query;
+        
+        const result = await subtitlesHandler({
+          id,
+          type,
+          extra
+        } as SubtitlesRequest);
+        
+        res.json(result);
+      } catch (error) {
+        console.error('Subtitles error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+    
+    app.listen(PORT, () => {
+      console.log(`🎬 AI Subtitle Translator addon started on port ${PORT}`);
+      console.log(`📋 Manifest: http://localhost:${PORT}/manifest.json`);
+      console.log(`🔗 Backend URL: ${BACKEND_URL}`);
+    });
+  }
+} catch (error) {
+  console.error('Failed to start addon server:', error);
+  process.exit(1);
+}
