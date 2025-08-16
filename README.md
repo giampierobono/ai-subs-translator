@@ -19,7 +19,7 @@ A powerful subtitle translation service built with TypeScript, featuring real-ti
 ### Development
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/giampierobono/ai-subs-translator.git
 cd ai-subs-translator
 
 # Install dependencies
@@ -31,8 +31,8 @@ npm run dev
 
 ### Production (Docker)
 ```bash
-# Build and run with Docker Compose
-docker-compose up --build
+# Build and run with Docker Compose (modern syntax)
+docker compose up --build
 
 # Or build individual services
 docker build -f server.Dockerfile -t ai-subs-server .
@@ -74,12 +74,22 @@ No API keys needed in environment variables! Each user provides their own keys t
 
 ## 📦 Architecture
 
-- **`apps/server`** - Main translation API server
-- **`apps/addon`** - Stremio addon service  
-- **`packages/core`** - Subtitle parsing utilities
-- **`packages/types`** - Shared TypeScript types
-- **`packages/config`** - Configuration management
-- **`packages/provider-*`** - External API integrations
+### Monorepo Structure
+- **`apps/server`** - Express API server (port 8787)
+- **`apps/addon`** - Stremio addon service (port 7000)
+- **`packages/core`** - SRT parsing and subtitle utilities
+- **`packages/types`** - Shared TypeScript type definitions (Feature-Sliced Design)
+- **`packages/config`** - Centralized configuration management
+- **`packages/provider-openai`** - OpenAI GPT integration
+- **`packages/provider-opensubtitles`** - OpenSubtitles API integration
+
+### Key Technical Features
+- 🏗️ **TypeScript monorepo** with Turbo for fast builds
+- 🔒 **User API key system** - no server-side key storage
+- 🐳 **Multi-stage Docker builds** for optimized containers
+- ⚡ **Express 5.x** with modern async/await patterns
+- 🎯 **Native Node.js fetch** (no external HTTP libraries)
+- 🛡️ **Comprehensive error handling** with custom error classes
 
 ## 🆓 Deployment
 
@@ -98,12 +108,29 @@ npm install
 # Build all packages  
 npm run build
 
-# Run tests
+# Run tests (placeholder scripts in packages)
 npm run test
 
-# Lint code
+# Lint code (configured per package)
 npm run lint
 
-# Type check
+# Type check across monorepo
 npm run type-check
+
+# Development servers
+npm run dev  # Starts both server and addon in parallel
+
+# Clean build artifacts
+npm run clean
 ```
+
+### CI/CD Workflows
+- ✅ **Main CI** - Build, test, security audit, Docker build
+- ✅ **Dependencies** - Automated dependency updates (weekly)
+- ✅ **Performance** - Load testing of health endpoints
+- ✅ **Release** - Automated releases on tag push
+
+### Security & Auditing
+- 🔒 **npm audit** configured for critical vulnerabilities only
+- 🛡️ **No external quality services** (SonarCloud removed)
+- ⚡ **Fast CI** without external token dependencies
