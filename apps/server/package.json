@@ -11,9 +11,9 @@
   "dependencies": {
     "express": "^5.1.0",
     "dotenv": "^17.2.1",
-    "@ai-subs-translator/core": "file:../../packages/core",
-    "@ai-subs-translator/provider-openai": "file:../../packages/provider-openai",
-    "@ai-subs-translator/provider-opensubtitles": "file:../../packages/provider-opensubtitles"
+    "@ai-subs-translator/core": "*",
+    "@ai-subs-translator/provider-openai": "*",
+    "@ai-subs-translator/provider-opensubtitles": "*"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
