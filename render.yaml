@@ -1,0 +1,45 @@
+services:
+  # Server Service
+  - type: web
+    name: ai-subs-server
+    env: docker
+    dockerfilePath: ./server.Dockerfile
+    plan: free
+    region: frankfurt # EU region
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8787
+      - key: DEFAULT_LANG
+        value: en
+      - key: OPENAI_API_KEY
+        sync: false # Set manually in Render dashboard
+      - key: OPENSUBTITLES_API_KEY  
+        sync: false # Set manually in Render dashboard
+      - key: CORS_ORIGIN
+        value: ""
+    healthCheckPath: /health
+    
+  # Addon Service  
+  - type: web
+    name: ai-subs-addon
+    env: docker
+    dockerfilePath: ./addon.Dockerfile
+    plan: free
+    region: frankfurt # EU region
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 7000
+    healthCheckPath: /
+    
+# Database (optional, uncomment if needed)
+# - type: pserv
+#   name: ai-subs-db
+#   env: postgres
+#   plan: free
+#   region: frankfurt
+#   databaseName: ai_subs_translator
+#   databaseUser: ai_subs_user

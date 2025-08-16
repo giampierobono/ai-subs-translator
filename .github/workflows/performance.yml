@@ -1,0 +1,62 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  performance-test:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Start services
+        run: |
+          docker-compose up -d
+          sleep 30 # Wait for services to start
+          
+      - name: Run performance tests
+        run: |
+          # Install hey for load testing
+          wget https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64
+          chmod +x hey_linux_amd64
+          
+          # Basic health check
+          curl -f http://localhost:8787/health || exit 1
+          
+          # Load test - 100 requests, 10 concurrent
+          ./hey_linux_amd64 -n 100 -c 10 http://localhost:8787/ > performance-results.txt
+          
+          # Check response times
+          echo "## Performance Results" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat performance-results.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Memory usage check
+        run: |
+          echo "## Memory Usage" >> $GITHUB_STEP_SUMMARY
+          docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Cleanup
+        if: always()
+        run: docker-compose down
