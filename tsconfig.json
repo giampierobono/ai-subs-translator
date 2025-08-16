@@ -11,7 +11,15 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@ai-subs-translator/types": ["packages/types/src"],
+      "@ai-subs-translator/core": ["packages/core/src"],
+      "@ai-subs-translator/config": ["packages/config/src"],
+      "@ai-subs-translator/provider-openai": ["packages/provider-openai/src"],
+      "@ai-subs-translator/provider-opensubtitles": ["packages/provider-opensubtitles/src"]
+    }
   },
   "include": [
     "apps/*/src/**/*",
