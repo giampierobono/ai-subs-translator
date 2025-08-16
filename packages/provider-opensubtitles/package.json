@@ -8,7 +8,6 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2",
     "@ai-subs-translator/types": "*"
   },
   "devDependencies": {

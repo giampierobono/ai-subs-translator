@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import type { OpenSubtitlesProviderConfig } from '@ai-subs-translator/types';
 
 /**
@@ -128,7 +127,7 @@ async function makeApiRequest(endpoint: string, options: RequestInit = {}): Prom
       method: 'GET',
       headers,
       ...options
-    } as any);
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
