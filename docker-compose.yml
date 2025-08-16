@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    ports:
+      - "8787:8787"
+    environment:
+      - PORT=8787
+      - DEFAULT_LANG=en
+    # Optionally mount a volume to persist cache or logs
+    volumes:
+      - .:/app:ro
+
+  addon:
+    build:
+      context: .
+      dockerfile: addon.Dockerfile
+    ports:
+      - "7000:7000"
+    environment:
+      - BACKEND_URL=http://server:8787/subs
+      - DEFAULT_LANG=en
+    depends_on:
+      - server
+    volumes:
+      - .:/app:ro
