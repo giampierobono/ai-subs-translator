@@ -33,11 +33,26 @@ jobs:
         run: |
           # Create .env for testing (no real API keys needed for basic health check)
           cp .env.example .env
+          echo "OPENAI_API_KEY=test-key-for-ci" >> .env
+          echo "OPENSUBTITLES_API_KEY=test-key-for-ci" >> .env
           
       - name: Start services
         run: |
-          docker compose up -d
-          sleep 30 # Wait for services to start
+          # Build and start services
+          docker compose up -d --build
+          
+          # Wait longer for services to be ready
+          echo "Waiting for services to start..."
+          sleep 60
+          
+          # Check if containers are running
+          docker compose ps
+          
+          # Show logs if something is wrong
+          echo "=== Server logs ==="
+          docker compose logs server
+          echo "=== Addon logs ==="
+          docker compose logs addon
           
       - name: Run performance tests
         run: |
@@ -45,12 +60,41 @@ jobs:
           wget https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64
           chmod +x hey_linux_amd64
           
-          # Basic health checks
+          # Wait for services to be ready with retry logic
+          echo "Waiting for server to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:8787/health >/dev/null 2>&1; then
+              echo "Server is ready!"
+              break
+            fi
+            echo "Attempt $i/30: Server not ready yet, waiting..."
+            sleep 2
+          done
+          
+          echo "Waiting for addon to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:7000/manifest.json >/dev/null 2>&1; then
+              echo "Addon is ready!"
+              break
+            fi
+            echo "Attempt $i/30: Addon not ready yet, waiting..."
+            sleep 2
+          done
+          
+          # Final health checks with verbose output
           echo "Testing server health endpoint..."
-          curl -f http://localhost:8787/health || exit 1
+          curl -v http://localhost:8787/health || {
+            echo "Server health check failed!"
+            docker compose logs server
+            exit 1
+          }
           
           echo "Testing addon manifest endpoint..."
-          curl -f http://localhost:7000/manifest.json || exit 1
+          curl -v http://localhost:7000/manifest.json || {
+            echo "Addon health check failed!"
+            docker compose logs addon
+            exit 1
+          }
           
           # Load test server health endpoint - 50 requests, 5 concurrent
           echo "Running server performance test..."
