@@ -25,8 +25,16 @@ COPY . .
 # Build only addon and its dependencies
 RUN npx turbo build --filter=@ai-subs-translator/addon
 
-# Verify build output
-RUN ls -la apps/addon/dist/ && test -f apps/addon/dist/index.js
+# Verify build output and copy to correct location
+RUN echo "=== Build output structure ===" && \
+    find . -name "index.js" -path "*/dist/*" && \
+    echo "=== Fixing addon dist structure ===" && \
+    if [ -f apps/addon/dist/apps/addon/src/index.js ]; then \
+      cp apps/addon/dist/apps/addon/src/index.js apps/addon/dist/index.js && \
+      echo "Fixed: Copied index.js to correct location"; \
+    fi && \
+    ls -la apps/addon/dist/ && \
+    test -f apps/addon/dist/index.js
 
 # Production stage
 FROM node:18-alpine AS production
