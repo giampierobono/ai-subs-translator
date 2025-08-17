@@ -1,5 +1,12 @@
 node_modules/
 dist/
+apps/*/dist/
+packages/*/dist/
+# TypeScript compiled files in wrong locations
+packages/*/src/*.js
+packages/*/src/*.d.ts
+packages/*/src/*.js.map
+packages/*/src/*.d.ts.map
 .env
 .turbo/
 .idea/
