@@ -25,16 +25,8 @@ COPY . .
 # Build only server and its dependencies
 RUN npx turbo build --filter=@ai-subs-translator/server
 
-# Verify build output and copy to correct location
-RUN echo "=== Build output structure ===" && \
-    find . -name "index.js" -path "*/dist/*" && \
-    echo "=== Fixing server dist structure ===" && \
-    if [ -f apps/server/dist/apps/server/src/index.js ]; then \
-      cp apps/server/dist/apps/server/src/index.js apps/server/dist/index.js && \
-      echo "Fixed: Copied index.js to correct location"; \
-    fi && \
-    ls -la apps/server/dist/ && \
-    test -f apps/server/dist/index.js
+# Verify build output
+RUN ls -la apps/server/dist/ && test -f apps/server/dist/index.js
 
 # Production stage
 FROM node:18-alpine AS production

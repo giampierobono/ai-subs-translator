@@ -13,14 +13,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "noEmit": false,
-    "baseUrl": "../../",
-    "paths": {
-      "@ai-subs-translator/types": ["packages/types/src"],
-      "@ai-subs-translator/core": ["packages/core/src"],
-      "@ai-subs-translator/config": ["packages/config/src"],
-      "@ai-subs-translator/provider-openai": ["packages/provider-openai/src"],
-      "@ai-subs-translator/provider-opensubtitles": ["packages/provider-opensubtitles/src"]
-    }
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
