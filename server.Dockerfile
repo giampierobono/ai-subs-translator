@@ -25,6 +25,9 @@ COPY . .
 # Build only server and its dependencies
 RUN npx turbo build --filter=@ai-subs-translator/server
 
+# Verify build output
+RUN ls -la apps/server/dist/ && test -f apps/server/dist/index.js
+
 # Production stage
 FROM node:18-alpine AS production
 
@@ -39,12 +42,15 @@ COPY packages/types/package*.json ./packages/types/
 COPY packages/provider-openai/package*.json ./packages/provider-openai/
 COPY packages/provider-opensubtitles/package*.json ./packages/provider-opensubtitles/
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install production dependencies (including workspace packages)
+RUN npm install --omit=dev
 
 # Copy built application from builder stage
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/packages ./packages
+
+# Verify that the main file exists
+RUN ls -la apps/server/dist/ && test -f apps/server/dist/index.js
 
 # Expose port
 EXPOSE 8787

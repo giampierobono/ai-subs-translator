@@ -25,6 +25,9 @@ COPY . .
 # Build only addon and its dependencies
 RUN npx turbo build --filter=@ai-subs-translator/addon
 
+# Verify build output
+RUN ls -la apps/addon/dist/ && test -f apps/addon/dist/index.js
+
 # Production stage
 FROM node:18-alpine AS production
 
@@ -37,12 +40,15 @@ COPY packages/core/package*.json ./packages/core/
 COPY packages/config/package*.json ./packages/config/
 COPY packages/types/package*.json ./packages/types/
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install production dependencies (including workspace packages)
+RUN npm install --omit=dev
 
 # Copy built application from builder stage
 COPY --from=builder /app/apps/addon/dist ./apps/addon/dist
 COPY --from=builder /app/packages ./packages
+
+# Verify that the main file exists
+RUN ls -la apps/addon/dist/ && test -f apps/addon/dist/index.js
 
 # Expose port
 EXPOSE 7000
